@@ -89,8 +89,8 @@ Vercel will detect `vercel.json` and configure routing automatically.
 
 Your game will be live at:
 
-- `https://your-domain.vercel.app/` — Game hub
-- `https://your-domain.vercel.app/countryclash` — Country Clash
+- `https://genlayer-minigame.vercel.app/` — Game hub
+- `https://genlayer-minigame.vercel.app/countryclash` — Country Clash
 
 -----
 
