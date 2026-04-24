@@ -1,1 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>GenLayer Games</title>
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --bg: #0a0a0f;
+      --surface: #13131a;
+      --border: #1e1e2e;
+      --accent: #00e5a0;
+      --accent2: #7b5ea7;
+      --text: #e8e8f0;
+      --muted: #6b6b80;
+    }
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'DM Sans', sans-serif;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 3rem 1.5rem;
+    }
+    header {
+      text-align: center;
+      margin-bottom: 3rem;
+    }
+    header h1 {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: clamp(3rem, 8vw, 5rem);
+      letter-spacing: 0.05em;
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    header p {
+      color: var(--muted);
+      margin-top: 0.5rem;
+      font-size: 1rem;
+    }
+    .games-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 1.5rem;
+      width: 100%;
+      max-width: 900px;
+    }
+    .game-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 2rem 1.5rem;
+      text-decoration: none;
+      color: var(--text);
+      transition: border-color 0.2s, transform 0.2s;
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+    }
+    .game-card:hover {
+      border-color: var(--accent);
+      transform: translateY(-3px);
+    }
+    .game-card .emoji { font-size: 2.5rem; }
+    .game-card h2 { font-family: 'Bebas Neue', sans-serif; font-size: 1.6rem; letter-spacing: 0.05em; }
+    .game-card p { color: var(--muted); font-size: 0.9rem; line-height: 1.5; }
+    .badge {
+      display: inline-block;
+      background: rgba(0,229,160,0.1);
+      color: var(--accent);
+      border: 1px solid rgba(0,229,160,0.3);
+      border-radius: 99px;
+      padding: 0.2rem 0.75rem;
+      font-size: 0.75rem;
+      font-weight: 600;
+      width: fit-content;
+    }
+    footer {
+      margin-top: 4rem;
+      color: var(--muted);
+      font-size: 0.8rem;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>GenLayer Games</h1>
+    <p>Onchain mini-games powered by Intelligent Contracts</p>
+  </header>
+  <div class="games-grid">
+    <a href="/countryclash" class="game-card">
+      <span class="emoji">🌍</span>
+      <h2>Country Clash</h2>
+      <p>Two countries. One metric fetched live from the web. Which ranks higher?</p>
+      <span class="badge">Live Web Data</span>
+    </a>
+    <div class="game-card" style="opacity:0.4;cursor:not-allowed;">
+      <span class="emoji">🔮</span>
+      <h2>Coming Soon</h2>
+      <p>More games are on the way. Stay tuned.</p>
+    </div>
+  </div>
+  <footer>Built on GenLayer · Intelligent Contracts · Powered by AI consensus</footer>
+</body>
+</html>
 
