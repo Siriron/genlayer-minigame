@@ -1,1 +1,604 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Country Clash — GenLayer Games</title>
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --bg: #0a0a0f;
+      --surface: #13131a;
+      --surface2: #1a1a24;
+      --border: #1e1e2e;
+      --accent: #00e5a0;
+      --accent2: #7b5ea7;
+      --danger: #ff4d6d;
+      --text: #e8e8f0;
+      --muted: #6b6b80;
+    }
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'DM Sans', sans-serif;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 2rem 1rem;
+    }
+    nav {
+      width: 100%;
+      max-width: 860px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 2.5rem;
+    }
+    nav a { color: var(--muted); text-decoration: none; font-size: 0.9rem; }
+    nav a:hover { color: var(--accent); }
+    .title {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: clamp(2.5rem, 6vw, 4rem);
+      letter-spacing: 0.05em;
+      text-align: center;
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      margin-bottom: 0.5rem;
+    }
+    .subtitle { color: var(--muted); text-align: center; margin-bottom: 2.5rem; font-size: 0.95rem; }
 
+    /* Wallet */
+    #walletSection { margin-bottom: 2rem; text-align: center; }
+    .btn {
+      background: var(--accent);
+      color: #000;
+      border: none;
+      border-radius: 10px;
+      padding: 0.75rem 1.75rem;
+      font-family: 'DM Sans', sans-serif;
+      font-weight: 600;
+      font-size: 0.95rem;
+      cursor: pointer;
+      transition: opacity 0.2s;
+    }
+    .btn:hover { opacity: 0.85; }
+    .btn-outline {
+      background: transparent;
+      color: var(--accent);
+      border: 1px solid var(--accent);
+    }
+    .btn-danger {
+      background: var(--danger);
+      color: #fff;
+    }
+    .wallet-info { display: flex; gap: 1rem; align-items: center; justify-content: center; flex-wrap: wrap; }
+    .wallet-addr {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 0.5rem 1rem;
+      font-size: 0.85rem;
+      color: var(--muted);
+    }
+    .score-badge {
+      background: rgba(0,229,160,0.1);
+      border: 1px solid rgba(0,229,160,0.3);
+      color: var(--accent);
+      border-radius: 8px;
+      padding: 0.5rem 1rem;
+      font-size: 0.85rem;
+      font-weight: 600;
+    }
+
+    /* Setup */
+    #setupSection {
+      width: 100%;
+      max-width: 560px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 2rem;
+      display: flex;
+      flex-direction: column;
+      gap: 1.25rem;
+    }
+    #setupSection h2 { font-family: 'Bebas Neue', sans-serif; font-size: 1.6rem; letter-spacing: 0.05em; }
+    label { font-size: 0.85rem; color: var(--muted); display: block; margin-bottom: 0.4rem; }
+    input, select {
+      width: 100%;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 0.75rem 1rem;
+      color: var(--text);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.95rem;
+      outline: none;
+    }
+    input:focus, select:focus { border-color: var(--accent); }
+    select option { background: var(--surface2); }
+    .row { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+
+    /* Game arena */
+    #gameSection { width: 100%; max-width: 860px; display: none; flex-direction: column; align-items: center; gap: 2rem; }
+
+    .metric-label {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 99px;
+      padding: 0.6rem 1.5rem;
+      font-size: 0.9rem;
+      color: var(--muted);
+      text-align: center;
+    }
+    .metric-label span { color: var(--accent); font-weight: 600; }
+
+    .countries {
+      display: grid;
+      grid-template-columns: 1fr auto 1fr;
+      gap: 1rem;
+      width: 100%;
+      align-items: center;
+    }
+    .country-card {
+      background: var(--surface);
+      border: 2px solid var(--border);
+      border-radius: 16px;
+      padding: 2rem 1.5rem;
+      text-align: center;
+      cursor: pointer;
+      transition: border-color 0.2s, transform 0.2s, background 0.2s;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 1rem;
+    }
+    .country-card:hover { border-color: var(--accent); transform: scale(1.02); }
+    .country-card.selected { border-color: var(--accent); background: rgba(0,229,160,0.05); }
+    .country-card.correct { border-color: var(--accent); background: rgba(0,229,160,0.1); }
+    .country-card.wrong { border-color: var(--danger); background: rgba(255,77,109,0.08); }
+    .country-flag { font-size: 4rem; line-height: 1; }
+    .country-name { font-family: 'Bebas Neue', sans-serif; font-size: 1.8rem; letter-spacing: 0.05em; }
+    .vs-badge {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 2rem;
+      color: var(--muted);
+      text-align: center;
+    }
+
+    /* Timer */
+    .timer-wrap { width: 100%; }
+    .timer-bar-bg {
+      width: 100%;
+      height: 6px;
+      background: var(--border);
+      border-radius: 99px;
+      overflow: hidden;
+    }
+    .timer-bar {
+      height: 100%;
+      background: var(--accent);
+      border-radius: 99px;
+      transition: width 0.1s linear, background 0.5s;
+    }
+    .timer-text { text-align: center; color: var(--muted); font-size: 0.85rem; margin-top: 0.5rem; }
+
+    /* Result */
+    #resultSection {
+      width: 100%;
+      max-width: 560px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 2rem;
+      text-align: center;
+      display: none;
+      flex-direction: column;
+      gap: 1rem;
+      align-items: center;
+    }
+    #resultSection h2 { font-family: 'Bebas Neue', sans-serif; font-size: 2.5rem; letter-spacing: 0.05em; }
+    .result-correct { color: var(--accent); }
+    .result-wrong { color: var(--danger); }
+    .result-score { font-size: 1.1rem; color: var(--muted); }
+    .result-score span { color: var(--accent); font-weight: 600; font-size: 1.4rem; }
+
+    /* Leaderboard */
+    #leaderboardSection {
+      width: 100%;
+      max-width: 560px;
+      margin-top: 2rem;
+    }
+    #leaderboardSection h3 { font-family: 'Bebas Neue', sans-serif; font-size: 1.4rem; letter-spacing: 0.05em; margin-bottom: 1rem; }
+    .lb-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0.75rem 1rem;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      margin-bottom: 0.5rem;
+      font-size: 0.9rem;
+    }
+    .lb-row .rank { color: var(--muted); width: 2rem; }
+    .lb-row .nick { flex: 1; }
+    .lb-row .pts { color: var(--accent); font-weight: 600; }
+
+    /* Status */
+    #status {
+      text-align: center;
+      color: var(--muted);
+      font-size: 0.9rem;
+      min-height: 1.4rem;
+    }
+    .loading { animation: pulse 1.2s ease-in-out infinite; }
+    @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
+
+    .hidden { display: none !important; }
+  </style>
+</head>
+<body>
+
+<nav>
+  <a href="/">← All Games</a>
+  <a href="/countryclash">Country Clash</a>
+</nav>
+
+<h1 class="title">Country Clash</h1>
+<p class="subtitle">Two countries. One live metric. Pick the higher ranked one — fast.</p>
+
+<!-- Wallet -->
+<div id="walletSection">
+  <button class="btn" id="connectBtn">Connect Wallet</button>
+</div>
+
+<!-- Setup -->
+<div id="setupSection" class="hidden">
+  <h2>Start a Round</h2>
+  <div>
+    <label>Your Nickname</label>
+    <input type="text" id="nicknameInput" placeholder="Enter nickname..." maxlength="25" />
+  </div>
+  <div class="row">
+    <div>
+      <label>Country A</label>
+      <input type="text" id="countryA" placeholder="e.g. Germany" />
+    </div>
+    <div>
+      <label>Country B</label>
+      <input type="text" id="countryB" placeholder="e.g. France" />
+    </div>
+  </div>
+  <div>
+    <label>Metric</label>
+    <select id="metricSelect">
+      <option value="GDP">GDP</option>
+      <option value="population">Population</option>
+      <option value="area">Area (km²)</option>
+      <option value="life expectancy">Life Expectancy</option>
+      <option value="inflation rate">Inflation Rate</option>
+    </select>
+  </div>
+  <button class="btn" id="startBtn">⚡ Start Round</button>
+  <div id="status"></div>
+</div>
+
+<!-- Game Arena -->
+<div id="gameSection">
+  <div class="metric-label">Which country has the higher <span id="metricDisplay">GDP</span>?</div>
+  <div class="timer-wrap">
+    <div class="timer-bar-bg"><div class="timer-bar" id="timerBar"></div></div>
+    <div class="timer-text" id="timerText">30s</div>
+  </div>
+  <div class="countries">
+    <div class="country-card" id="cardA" onclick="submitAnswer('A')">
+      <div class="country-flag" id="flagA">🌍</div>
+      <div class="country-name" id="nameA">Country A</div>
+    </div>
+    <div class="vs-badge">VS</div>
+    <div class="country-card" id="cardB" onclick="submitAnswer('B')">
+      <div class="country-flag" id="flagB">🌎</div>
+      <div class="country-name" id="nameB">Country B</div>
+    </div>
+  </div>
+  <div id="status"></div>
+</div>
+
+<!-- Result -->
+<div id="resultSection">
+  <h2 id="resultTitle"></h2>
+  <p class="result-score">Points earned: <span id="resultScore">0</span></p>
+  <p id="resultDetail" style="color:var(--muted);font-size:0.9rem;"></p>
+  <div style="display:flex;gap:1rem;flex-wrap:wrap;justify-content:center;margin-top:1rem;">
+    <button class="btn" id="playAgainBtn">Play Again</button>
+  </div>
+</div>
+
+<!-- Leaderboard -->
+<div id="leaderboardSection">
+  <h3>🏆 Leaderboard</h3>
+  <div id="leaderboardList"></div>
+  <button class="btn btn-outline" style="margin-top:1rem;width:100%;" onclick="loadLeaderboard()">Refresh</button>
+</div>
+
+<script type="module">
+// ─── CONFIG ───────────────────────────────────────────────────────────────────
+// Replace these after deploying your contracts
+const CONFIG = {
+  GAME_CONTRACT: "0x5fFd3104A2CC3d2c35dB58ebA105eC0b8f25dF10",
+  STORAGE_CONTRACT: "0x3E3C350E026f0C3918FF7c157C2981338165AAd4",
+  STAT_CONTRACT: "0x9706EF854673dDeA6c0F07F3288fFE461a738050",
+  RPC_URL: "https://studio.genlayer.com/api",
+};
+
+// ─── COUNTRY FLAGS ────────────────────────────────────────────────────────────
+const FLAG_MAP = {
+  "germany":"🇩🇪","france":"🇫🇷","usa":"🇺🇸","united states":"🇺🇸","china":"🇨🇳",
+  "japan":"🇯🇵","india":"🇮🇳","brazil":"🇧🇷","canada":"🇨🇦","australia":"🇦🇺",
+  "uk":"🇬🇧","united kingdom":"🇬🇧","russia":"🇷🇺","south korea":"🇰🇷","korea":"🇰🇷",
+  "italy":"🇮🇹","spain":"🇪🇸","mexico":"🇲🇽","indonesia":"🇮🇩","netherlands":"🇳🇱",
+  "saudi arabia":"🇸🇦","turkey":"🇹🇷","switzerland":"🇨🇭","argentina":"🇦🇷",
+  "sweden":"🇸🇪","poland":"🇵🇱","belgium":"🇧🇪","thailand":"🇹🇭","nigeria":"🇳🇬",
+  "egypt":"🇪🇬","pakistan":"🇵🇰","bangladesh":"🇧🇩","vietnam":"🇻🇳","philippines":"🇵🇭",
+};
+function getFlag(name) {
+  return FLAG_MAP[name.toLowerCase()] || "🏳️";
+}
+
+// ─── STATE ────────────────────────────────────────────────────────────────────
+let walletAddress = null;
+let currentRound = null;
+let timerInterval = null;
+let startTime = null;
+let answered = false;
+let totalScore = 0;
+
+// ─── GENLAYER CLIENT ──────────────────────────────────────────────────────────
+async function glRead(contractAddress, method, args = []) {
+  const res = await fetch(CONFIG.RPC_URL, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      jsonrpc: "2.0", id: 1, method: "eth_call",
+      params: [{ to: contractAddress, data: encodeCall(method, args) }, "latest"]
+    })
+  });
+  const json = await res.json();
+  return json.result;
+}
+
+async function glWrite(contractAddress, method, args = []) {
+  if (!window.ethereum) throw new Error("No wallet");
+  const data = encodeCall(method, args);
+  return window.ethereum.request({
+    method: "eth_sendTransaction",
+    params: [{ from: walletAddress, to: contractAddress, data, gas: "0x100000" }]
+  });
+}
+
+function encodeCall(method, args) {
+  // Simple ABI encoding for strings and ints — works for GenLayer studio
+  const sig = method + "(" + args.map(a => typeof a === "number" ? "uint256" : "string").join(",") + ")";
+  const hash = keccak256(sig).slice(0, 10);
+  const encoded = args.map(a => {
+    if (typeof a === "number") return a.toString(16).padStart(64, "0");
+    const hex = Array.from(new TextEncoder().encode(a)).map(b => b.toString(16).padStart(2,"0")).join("");
+    const offset = (64).toString(16).padStart(64, "0");
+    const len = (a.length).toString(16).padStart(64, "0");
+    const data = hex.padEnd(Math.ceil(hex.length / 64) * 64, "0");
+    return offset + len + data;
+  });
+  return hash + encoded.join("");
+}
+
+function keccak256(str) {
+  // Use ethers if available, otherwise fallback
+  if (window.ethers) return window.ethers.utils.id(str);
+  // Basic fallback - use MetaMask's signing
+  return "0x" + Array.from(str).map(c => c.charCodeAt(0).toString(16).padStart(2,"0")).join("").slice(0,8);
+}
+
+// ─── WALLET ───────────────────────────────────────────────────────────────────
+document.getElementById("connectBtn").addEventListener("click", async () => {
+  if (!window.ethereum) { alert("Please install MetaMask"); return; }
+  const accounts = await window.ethereum.request({ method: "eth_requestAccounts" });
+  walletAddress = accounts[0];
+  document.getElementById("walletSection").innerHTML = `
+    <div class="wallet-info">
+      <div class="wallet-addr">${walletAddress.slice(0,6)}...${walletAddress.slice(-4)}</div>
+      <div class="score-badge">Score: <span id="scoreDisplay">${totalScore}</span></div>
+    </div>
+  `;
+  document.getElementById("setupSection").classList.remove("hidden");
+  loadLeaderboard();
+});
+
+// ─── START ROUND ──────────────────────────────────────────────────────────────
+document.getElementById("startBtn").addEventListener("click", async () => {
+  const countryA = document.getElementById("countryA").value.trim();
+  const countryB = document.getElementById("countryB").value.trim();
+  const metric = document.getElementById("metricSelect").value;
+  const nickname = document.getElementById("nicknameInput").value.trim();
+
+  if (!countryA || !countryB) { setStatus("Enter both country names."); return; }
+  if (countryA.toLowerCase() === countryB.toLowerCase()) { setStatus("Pick two different countries."); return; }
+  if (!walletAddress) { setStatus("Connect wallet first."); return; }
+
+  const roundId = `cc_${Date.now()}_${walletAddress.slice(-4)}`;
+  currentRound = { roundId, countryA, countryB, metric };
+
+  setStatus("⏳ Fetching live data from the web...", true);
+  document.getElementById("startBtn").disabled = true;
+
+  try {
+    if (nickname) {
+      await glWrite(CONFIG.STAT_CONTRACT, "set_nickname", [nickname]);
+    }
+    await glWrite(CONFIG.GAME_CONTRACT, "start_round", [roundId, countryA, countryB, metric]);
+    setStatus("🌐 AI is analyzing countries...", true);
+
+    // Poll for result (wait for GenLayer consensus)
+    await new Promise(r => setTimeout(r, 8000));
+
+    showGameArena(countryA, countryB, metric);
+  } catch (e) {
+    setStatus("Error: " + e.message);
+    document.getElementById("startBtn").disabled = false;
+  }
+});
+
+// ─── GAME ARENA ───────────────────────────────────────────────────────────────
+function showGameArena(countryA, countryB, metric) {
+  document.getElementById("setupSection").classList.add("hidden");
+  const gameSection = document.getElementById("gameSection");
+  gameSection.style.display = "flex";
+
+  document.getElementById("metricDisplay").textContent = metric;
+  document.getElementById("nameA").textContent = countryA;
+  document.getElementById("nameB").textContent = countryB;
+  document.getElementById("flagA").textContent = getFlag(countryA);
+  document.getElementById("flagB").textContent = getFlag(countryB);
+
+  answered = false;
+  startTime = Date.now();
+  startTimer(30);
+  setStatus("Pick the country with the higher " + metric + "!");
+}
+
+function startTimer(seconds) {
+  const bar = document.getElementById("timerBar");
+  const text = document.getElementById("timerText");
+  let remaining = seconds;
+
+  timerInterval = setInterval(() => {
+    remaining -= 0.1;
+    const pct = (remaining / seconds) * 100;
+    bar.style.width = pct + "%";
+    bar.style.background = pct > 50 ? "var(--accent)" : pct > 25 ? "#f5a623" : "var(--danger)";
+    text.textContent = Math.ceil(remaining) + "s";
+    if (remaining <= 0) {
+      clearInterval(timerInterval);
+      if (!answered) submitAnswer(null);
+    }
+  }, 100);
+}
+
+// ─── SUBMIT ANSWER ────────────────────────────────────────────────────────────
+window.submitAnswer = async function(choice) {
+  if (answered) return;
+  answered = true;
+  clearInterval(timerInterval);
+
+  const elapsed = Math.floor((Date.now() - startTime) / 1000);
+  const playerAnswer = choice === "A" ? currentRound.countryA : choice === "B" ? currentRound.countryB : "";
+
+  if (choice === "A") document.getElementById("cardA").classList.add("selected");
+  if (choice === "B") document.getElementById("cardB").classList.add("selected");
+
+  setStatus("⏳ Submitting answer to the blockchain...", true);
+
+  try {
+    await glWrite(CONFIG.GAME_CONTRACT, "submit_answer", [currentRound.roundId, playerAnswer, elapsed]);
+    await new Promise(r => setTimeout(r, 6000));
+
+    // Read result from error field (GenLayer pattern)
+    const errorResult = await glRead(CONFIG.GAME_CONTRACT, "get_error", []);
+    const isCorrect = errorResult && errorResult.includes("Score:") && !errorResult.includes("Score: 0");
+    const scoreMatch = errorResult ? errorResult.match(/Score: (\d+)/) : null;
+    const score = scoreMatch ? parseInt(scoreMatch[1]) : 0;
+
+    showResult(isCorrect, score, playerAnswer, currentRound);
+  } catch (e) {
+    setStatus("Error submitting: " + e.message);
+  }
+}
+
+// ─── RESULT ───────────────────────────────────────────────────────────────────
+function showResult(isCorrect, score, playerAnswer, round) {
+  document.getElementById("gameSection").style.display = "none";
+  const resultSection = document.getElementById("resultSection");
+  resultSection.style.display = "flex";
+
+  if (isCorrect) {
+    totalScore += score;
+    document.getElementById("resultTitle").textContent = "✅ Correct!";
+    document.getElementById("resultTitle").className = "result-correct";
+  } else {
+    document.getElementById("resultTitle").textContent = "❌ Wrong!";
+    document.getElementById("resultTitle").className = "result-wrong";
+  }
+
+  document.getElementById("resultScore").textContent = "+" + score;
+  document.getElementById("resultDetail").textContent =
+    `You picked: ${playerAnswer || "Time's up!"} · Metric: ${round.metric}`;
+
+  const scoreDisplay = document.getElementById("scoreDisplay");
+  if (scoreDisplay) scoreDisplay.textContent = totalScore;
+
+  loadLeaderboard();
+}
+
+document.getElementById("playAgainBtn").addEventListener("click", () => {
+  document.getElementById("resultSection").style.display = "none";
+  document.getElementById("setupSection").classList.remove("hidden");
+  document.getElementById("startBtn").disabled = false;
+  setStatus("");
+});
+
+// ─── LEADERBOARD ──────────────────────────────────────────────────────────────
+window.loadLeaderboard = async function() {
+  const container = document.getElementById("leaderboardList");
+  container.innerHTML = '<div class="lb-row" style="color:var(--muted)">Loading...</div>';
+  try {
+    const raw = await glRead(CONFIG.STAT_CONTRACT, "get_points", [10]);
+    const data = JSON.parse(decodeABIString(raw));
+    if (!Array.isArray(data) || data.length === 0) {
+      container.innerHTML = '<div class="lb-row" style="color:var(--muted)">No scores yet. Be the first!</div>';
+      return;
+    }
+    container.innerHTML = data.map((entry, i) => `
+      <div class="lb-row">
+        <span class="rank">#${i + 1}</span>
+        <span class="nick">${entry.nick || entry.wallet.slice(0,8) + "..."}</span>
+        <span class="pts">${entry.points} pts</span>
+      </div>
+    `).join("");
+  } catch {
+    container.innerHTML = '<div class="lb-row" style="color:var(--muted)">Could not load leaderboard.</div>';
+  }
+}
+
+function decodeABIString(hex) {
+  if (!hex || hex === "0x") return "[]";
+  try {
+    const clean = hex.startsWith("0x") ? hex.slice(2) : hex;
+    const bytes = [];
+    for (let i = 0; i < clean.length; i += 2) bytes.push(parseInt(clean.slice(i, i+2), 16));
+    const offset = parseInt(clean.slice(0, 64), 16) * 2;
+    const len = parseInt(clean.slice(64, 128), 16) * 2;
+    const strHex = clean.slice(128, 128 + len);
+    const strBytes = [];
+    for (let i = 0; i < strHex.length; i += 2) strBytes.push(parseInt(strHex.slice(i, i+2), 16));
+    return new TextDecoder().decode(new Uint8Array(strBytes));
+  } catch { return "[]"; }
+}
+
+// ─── HELPERS ──────────────────────────────────────────────────────────────────
+function setStatus(msg, loading = false) {
+  const el = document.getElementById("status");
+  if (el) {
+    el.textContent = msg;
+    el.className = loading ? "loading" : "";
+  }
+}
+
+// Auto-load leaderboard on page load
+loadLeaderboard();
+</script>
+</body>
+</html>
