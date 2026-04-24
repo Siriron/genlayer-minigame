@@ -1,4 +1,3 @@
-
 # Deployment Guide — GenLayer Mini-Games
 
 ## Prerequisites
@@ -97,11 +96,11 @@ Your game will be live at:
 
 ## Contract Addresses (fill after deploy)
 
-|Contract               |Address|
-|-----------------------|-------|
-|stat.py                |       |
-|countryclash_storage.py|       |
-|countryclash.py        |       |
+|Contract               |Address                                   |
+|-----------------------|------------------------------------------|
+|stat.py                |0x9706EF854673dDeA6c0F07F3288fFE461a738050|
+|countryclash_storage.py|0x3E3C350E026f0C3918FF7c157C2981338165AAd4|
+|countryclash.py        |0x5fFd3104A2CC3d2c35dB58ebA105eC0b8f25dF10|
 
 -----
 
