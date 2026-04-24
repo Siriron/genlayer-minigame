@@ -8,7 +8,7 @@ A collection of onchain mini-games powered by GenLayer Intelligent Contracts. Ea
 
 Two countries. One metric fetched live from the web. Pick the country that ranks higher — fast. Speed bonus rewards quick thinkers.
 
-**Live at:** [your-domain.vercel.app/countryclash](https://your-domain.vercel.app/countryclash)
+**Live at:** [genlayer-minigame.vercel.app/countryclash](https://genlayer-minigame.vercel.app/countryclash)
 
 **Metrics:** GDP, Population, Area, Life Expectancy, Inflation Rate
 
