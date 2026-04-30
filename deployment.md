@@ -101,7 +101,8 @@ Your game will be live at:
 |stat.py                |0x9706EF854673dDeA6c0F07F3288fFE461a738050|
 |countryclash_storage.py|0x3E3C350E026f0C3918FF7c157C2981338165AAd4|
 |countryclash.py        |0x5fFd3104A2CC3d2c35dB58ebA105eC0b8f25dF10|
-
+| headlinehoax_storage.py | 0xC0378B36041bCAa14feA5F8De1430bB0d0631D8a |
+| headlinehoax.py | 0xCd7E16F924bA8fd92f06C02610F2641F874b08C4 |
 -----
 
 ## Adding Future Games
