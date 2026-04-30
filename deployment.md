@@ -91,7 +91,7 @@ Your game will be live at:
 
 - `https://genlayer-minigame.vercel.app/` — Game hub
 - `https://genlayer-minigame.vercel.app/countryclash` — Country Clash
-
+- `https://genlayer-minigame.vercel.app/headlinehoax
 -----
 
 ## Contract Addresses (fill after deploy)
