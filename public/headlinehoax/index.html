@@ -367,58 +367,44 @@ let totalScore = 0;
 let selectedTopic = "World News";
 let currentRealIsA = false;
 
-// ─── GENLAYER CLIENT ─────────────────────────────────────────────────────────
-async function glRead(contractAddress, method, args = []) {
-  const res = await fetch(CONFIG.RPC_URL, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      jsonrpc: "2.0", id: 1, method: "eth_call",
-      params: [{ to: contractAddress, from: walletAddress, data: encodeCall(method, args) }, "latest"]
-    })
-  });
-  const json = await res.json();
-  return json.result;
-}
-
-async function glWrite(contractAddress, method, args = []) {
-  if (!window.ethereum) throw new Error("No wallet");
-  const data = encodeCall(method, args);
-  return window.ethereum.request({
-    method: "eth_sendTransaction",
-    params: [{ from: walletAddress, to: contractAddress, data, gas: "0x100000" }]
-  });
+// ─── ABI ENCODING ────────────────────────────────────────────────────────────
+function encodeString(s) {
+  const bytes = new TextEncoder().encode(s);
+  const lenHex = bytes.length.toString(16).padStart(64, "0");
+  const dataHex = Array.from(bytes).map(b => b.toString(16).padStart(2,"0")).join("");
+  const paddedData = dataHex.padEnd(Math.ceil(dataHex.length / 64) * 64, "0");
+  return lenHex + paddedData;
 }
 
 function encodeCall(method, args) {
-  const sig = method + "(" + args.map(a => typeof a === "number" ? "uint256" : "string").join(",") + ")";
-  const hash = keccak256(sig).slice(0, 10);
+  const types = args.map(a => typeof a === "number" ? "uint256" : "string");
+  const sig = method + "(" + types.join(",") + ")";
+  const selector = keccak256(sig).slice(0, 10);
 
-  // Correct dynamic ABI encoding with proper offsets
-  const headSize = args.length * 32;
+  // Calculate heads (offsets) and tails (data) separately
+  const headSize = args.length * 32; // each head is 32 bytes
   const heads = [];
   const tails = [];
-  let tailOffset = headSize;
+  let currentOffset = headSize;
 
   for (const a of args) {
     if (typeof a === "number") {
       heads.push(a.toString(16).padStart(64, "0"));
+      // numbers don't add to tail
     } else {
-      heads.push(tailOffset.toString(16).padStart(64, "0"));
-      const bytes = new TextEncoder().encode(a);
-      const lenHex = bytes.length.toString(16).padStart(64, "0");
-      const dataHex = Array.from(bytes).map(b => b.toString(16).padStart(2,"0")).join("");
-      const paddedData = dataHex.padEnd(Math.ceil(dataHex.length / 64) * 64, "0");
-      tails.push(lenHex + paddedData);
-      tailOffset += 32 + Math.ceil(bytes.length / 32) * 32;
+      heads.push(currentOffset.toString(16).padStart(64, "0"));
+      const tail = encodeString(a);
+      tails.push(tail);
+      currentOffset += tail.length / 2; // tail length in bytes
     }
   }
 
-  return hash + heads.join("") + tails.join("");
+  return selector + heads.join("") + tails.join("");
 }
 
 function keccak256(str) {
   if (window.ethers) return window.ethers.utils.id(str);
+  // Fallback — same as CountryClash
   return "0x" + Array.from(str).map(c => c.charCodeAt(0).toString(16).padStart(2,"0")).join("").slice(0,8);
 }
 
@@ -432,6 +418,29 @@ function decodeABIString(hex) {
     for (let i = 0; i < strHex.length; i += 2) strBytes.push(parseInt(strHex.slice(i, i+2), 16));
     return new TextDecoder().decode(new Uint8Array(strBytes));
   } catch { return ""; }
+}
+
+// ─── GENLAYER CLIENT ─────────────────────────────────────────────────────────
+async function glRead(contractAddress, method, args = []) {
+  const res = await fetch(CONFIG.RPC_URL, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      jsonrpc: "2.0", id: Date.now(), method: "eth_call",
+      params: [{ to: contractAddress, from: walletAddress || "0x0000000000000000000000000000000000000000", data: encodeCall(method, args) }, "latest"]
+    })
+  });
+  const json = await res.json();
+  return json.result;
+}
+
+async function glWrite(contractAddress, method, args = []) {
+  if (!window.ethereum) throw new Error("No wallet");
+  const data = encodeCall(method, args);
+  return window.ethereum.request({
+    method: "eth_sendTransaction",
+    params: [{ from: walletAddress, to: contractAddress, data, gas: "0x100000" }]
+  });
 }
 
 function setStatus(msg, loading = false) {
@@ -476,7 +485,8 @@ document.getElementById("startBtn").addEventListener("click", async () => {
 
   try {
     if (nickname) await glWrite(CONFIG.STAT_CONTRACT, "set_nickname", [nickname]);
-    await glWrite(CONFIG.GAME_CONTRACT, "start_round", [roundId, selectedTopic]);
+    const txHash = await glWrite(CONFIG.GAME_CONTRACT, "start_round", [roundId, selectedTopic]);
+    setStatus("✅ Transaction sent: " + txHash.slice(0,10) + "... waiting for AI...", true);
     showGameArenaLoading();
     pollForHeadlines();
   } catch (e) {
@@ -499,17 +509,18 @@ function showGameArenaLoading() {
 }
 
 async function pollForHeadlines() {
-  // Poll get_error — wait for "Round started:" confirmation
-  for (let i = 0; i < 20; i++) {
+  for (let i = 0; i < 25; i++) {
     await new Promise(r => setTimeout(r, 6000));
-    setStatus(`🧠 AI fetching live headlines... (${(i + 1) * 6}s)`, true);
     try {
       const errRaw = await glRead(CONFIG.GAME_CONTRACT, "get_error", []);
       const errStr = decodeABIString(errRaw);
+      setStatus(`🧠 AI working... (${(i+1)*6}s) status: ${errStr.slice(0,40)}`, true);
+
       if (errStr.includes("Round started:")) {
-        // Now read active round — with from: walletAddress so sender is correct
+        // Read active round with wallet address as from
         const raw = await glRead(CONFIG.GAME_CONTRACT, "get_active_round", []);
-        const parsed = JSON.parse(decodeABIString(raw));
+        const roundStr = decodeABIString(raw);
+        const parsed = JSON.parse(roundStr);
         if (parsed && !parsed.error && parsed.real_headline && parsed.real_headline.length > 5) {
           currentRealIsA = Math.random() > 0.5;
           currentRound.realHeadline = parsed.real_headline;
@@ -524,15 +535,15 @@ async function pollForHeadlines() {
           return;
         }
       }
-      // Check for contract error
-      if (errStr.includes("start_round error:") || errStr.includes("parse_error:")) {
+
+      if (errStr.includes("error:") && !errStr.includes("None")) {
         setStatus("Contract error: " + errStr);
         document.getElementById("gameSection").style.display = "none";
         document.getElementById("setupSection").classList.remove("hidden");
         document.getElementById("startBtn").disabled = false;
         return;
       }
-    } catch (e) { /* keep polling */ }
+    } catch (e) { setStatus(`Polling (${(i+1)*6}s)...`, true); }
   }
   setStatus("Timed out. Please try again.");
   document.getElementById("gameSection").style.display = "none";
@@ -584,7 +595,6 @@ window.submitAnswer = async function(choice) {
     const fakeCard = currentRealIsA ? "cardB" : "cardA";
     document.getElementById(realCard).classList.add("correct");
     document.getElementById(fakeCard).classList.add("wrong");
-
     showResult(isCorrect, score);
   } catch (e) {
     setStatus("Error: " + e.message);
