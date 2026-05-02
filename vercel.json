@@ -1,9 +1,0 @@
-{
-  "rewrites": [
-    { "source": "/countryclash", "destination": "/public/countryclash/index.html" },
-    { "source": "/countryclash/(.*)", "destination": "/public/countryclash/index.html" },
-    { "source": "/headlinehoax", "destination": "/public/headlinehoax/index.html" },
-    { "source": "/headlinehoax/(.*)", "destination": "/public/headlinehoax/index.html" },
-    { "source": "/", "destination": "/public/index.html" }
-  ]
-}
