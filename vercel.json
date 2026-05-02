@@ -1,0 +1,9 @@
+{
+  "rewrites": [
+    { "source": "/countryclash", "destination": "/public/countryclash/index.html" },
+    { "source": "/countryclash/(.*)", "destination": "/public/countryclash/index.html" },
+    { "source": "/storyforge", "destination": "/public/storyforge/index.html" },
+    { "source": "/storyforge/(.*)", "destination": "/public/storyforge/index.html" },
+    { "source": "/", "destination": "/public/index.html" }
+  ]
+}
