@@ -219,7 +219,7 @@
 
 <script type="module">
 const CONFIG = {
-  GAME_CONTRACT: "0x29BAb3AE8B7BE08FD0D33cd41F9d2717A98fFbb9",
+  GAME_CONTRACT: "0xB37838E502e272Bd3bfBF34F3a46616C55867Ee1",
   STORAGE_CONTRACT: "0x914D51a7F44cD9649b1d9495578D8AA5FfeC8982",
   STAT_CONTRACT: "0x9706EF854673dDeA6c0F07F3288fFE461a738050",
   RPC_URL: "https://studio.genlayer.com/api",
@@ -333,7 +333,7 @@ document.getElementById("startBtn").addEventListener("click", async () => {
 
   try {
     if (nickname) await glWrite(CONFIG.STAT_CONTRACT, "set_nickname", [nickname]);
-    await glWrite(CONFIG.GAME_CONTRACT, "start_round", [roundId, selectedTopic]);
+    await glWrite(CONFIG.GAME_CONTRACT, "start_round", [roundId, selectedTopic, "x", "x"]);
     setStatus("🧠 AI is preparing your story...", true);
 
     // Poll get_error for "Story:" prefix — same pattern as CountryClash
@@ -371,6 +371,7 @@ document.getElementById("startBtn").addEventListener("click", async () => {
     }
 
     // Show game arena
+    currentRound.startTime = Date.now();
     document.getElementById("setupSection").classList.add("hidden");
     document.getElementById("storyHeadline").textContent = storyData.headline;
     document.getElementById("storyIntro").textContent = storyData.intro;
@@ -394,7 +395,7 @@ document.getElementById("submitBtn").addEventListener("click", async () => {
   document.getElementById("submitBtn").disabled = true;
 
   try {
-    await glWrite(CONFIG.GAME_CONTRACT, "submit_ending", [currentRound.roundId, ending]);
+    await glWrite(CONFIG.GAME_CONTRACT, "submit_answer", [currentRound.roundId, ending, elapsed]);
     setStatus("🧠 AI is reading the real story and judging your ending...", true);
 
     // Poll get_error for "Result:" prefix
@@ -416,7 +417,7 @@ document.getElementById("submitBtn").addEventListener("click", async () => {
             break;
           }
         }
-        if (errStr.includes("submit_ending error:")) {
+        if (errStr.includes("submit_answer error:")) {
           setStatus("Error: " + errStr);
           document.getElementById("submitBtn").disabled = false;
           return;
