@@ -63,4 +63,3 @@ A live-data onchain mini-game built on GenLayer. Two countries appear on screen 
 - Portal: [portal.genlayer.foundation](https://portal.genlayer.foundation)
 - Studio: [studio.genlayer.com](https://studio.genlayer.com)
 - Explorer: [explorer-studio.genlayer.com](https://explorer-studio.genlayer.com)
-- 
