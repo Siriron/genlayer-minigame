@@ -8,68 +8,284 @@
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     :root {
-      --bg: #0a0a0f; --surface: #13131a; --border: #1e1e2e;
-      --accent: #00e5a0; --accent2: #7b5ea7; --text: #e8e8f0; --muted: #6b6b80;
+      --bg: #0a0a0f;
+      --surface: #13131a;
+      --border: #1e1e2e;
+      --accent: #00e5a0;
+      --accent2: #7b5ea7;
+      --text: #e8e8f0;
+      --muted: #6b6b80;
     }
     body {
-      background: var(--bg); color: var(--text);
-      font-family: 'DM Sans', sans-serif; min-height: 100vh;
-      display: flex; flex-direction: column; align-items: center; padding: 3rem 1.5rem;
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'DM Sans', sans-serif;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 0;
+      overflow-x: hidden;
     }
-    header { text-align: center; margin-bottom: 3rem; }
-    header h1 {
-      font-family: 'Bebas Neue', sans-serif; font-size: clamp(3rem, 8vw, 5rem);
+
+    /* Hero */
+    .hero {
+      width: 100%;
+      padding: 5rem 1.5rem 3rem;
+      text-align: center;
+      background: radial-gradient(ellipse at 50% 0%, rgba(123,94,167,0.2) 0%, transparent 70%);
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 1.25rem;
+    }
+    .gl-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      background: rgba(0,229,160,0.08);
+      border: 1px solid rgba(0,229,160,0.25);
+      border-radius: 99px;
+      padding: 0.4rem 1rem;
+      font-size: 0.8rem;
+      color: var(--accent);
+      font-weight: 600;
       letter-spacing: 0.05em;
-      background: linear-gradient(135deg, var(--accent), var(--accent2));
-      -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
     }
-    header p { color: var(--muted); margin-top: 0.5rem; font-size: 1rem; }
-    .games-grid {
-      display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-      gap: 1.5rem; width: 100%; max-width: 900px;
+    .gl-badge::before {
+      content: "";
+      width: 6px; height: 6px;
+      background: var(--accent);
+      border-radius: 50%;
+      display: inline-block;
+    }
+    .hero h1 {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: clamp(3.5rem, 10vw, 6rem);
+      letter-spacing: 0.05em;
+      line-height: 1;
+      background: linear-gradient(135deg, #fff 30%, var(--accent2));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .hero p {
+      color: var(--muted);
+      font-size: 1rem;
+      max-width: 480px;
+      line-height: 1.6;
+    }
+
+    /* Stats bar */
+    .stats-bar {
+      display: flex;
+      gap: 2.5rem;
+      justify-content: center;
+      flex-wrap: wrap;
+      padding: 2rem 1.5rem;
+      border-bottom: 1px solid var(--border);
+      width: 100%;
+    }
+    .stat-item { text-align: center; }
+    .stat-item .val {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 2rem;
+      color: var(--accent);
+      letter-spacing: 0.05em;
+    }
+    .stat-item .label { color: var(--muted); font-size: 0.8rem; }
+
+    /* Game section */
+    .section {
+      width: 100%;
+      max-width: 900px;
+      padding: 3rem 1.5rem;
+    }
+    .section-label {
+      font-size: 0.8rem;
+      color: var(--accent);
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      margin-bottom: 1.25rem;
     }
     .game-card {
-      background: var(--surface); border: 1px solid var(--border);
-      border-radius: 16px; padding: 2rem 1.5rem; text-decoration: none;
-      color: var(--text); transition: border-color 0.2s, transform 0.2s;
-      display: flex; flex-direction: column; gap: 0.75rem;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 2.5rem;
+      text-decoration: none;
+      color: var(--text);
+      transition: border-color 0.2s, transform 0.2s;
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+      position: relative;
+      overflow: hidden;
     }
-    .game-card:hover { border-color: var(--accent); transform: translateY(-3px); }
-    .game-card .emoji { font-size: 2.5rem; }
-    .game-card h2 { font-family: 'Bebas Neue', sans-serif; font-size: 1.6rem; letter-spacing: 0.05em; }
-    .game-card p { color: var(--muted); font-size: 0.9rem; line-height: 1.5; }
-    .badge {
-      display: inline-block; background: rgba(0,229,160,0.1); color: var(--accent);
-      border: 1px solid rgba(0,229,160,0.3); border-radius: 99px;
-      padding: 0.2rem 0.75rem; font-size: 0.75rem; font-weight: 600; width: fit-content;
+    .game-card::before {
+      content: "";
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 2px;
+      background: linear-gradient(90deg, var(--accent), var(--accent2));
     }
-    footer { margin-top: 4rem; color: var(--muted); font-size: 0.8rem; }
+    .game-card:hover { border-color: var(--accent); transform: translateY(-4px); }
+    .card-top { display: flex; justify-content: space-between; align-items: flex-start; }
+    .game-emoji { font-size: 3rem; }
+    .live-badge {
+      background: rgba(0,229,160,0.1);
+      color: var(--accent);
+      border: 1px solid rgba(0,229,160,0.3);
+      border-radius: 99px;
+      padding: 0.3rem 0.8rem;
+      font-size: 0.75rem;
+      font-weight: 600;
+    }
+    .game-card h2 {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 2rem;
+      letter-spacing: 0.05em;
+    }
+    .game-card p { color: var(--muted); font-size: 0.95rem; line-height: 1.6; }
+    .card-tags { display: flex; gap: 0.5rem; flex-wrap: wrap; }
+    .tag {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 0.25rem 0.6rem;
+      font-size: 0.75rem;
+      color: var(--muted);
+    }
+    .play-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      background: var(--accent);
+      color: #000;
+      border-radius: 10px;
+      padding: 0.75rem 1.5rem;
+      font-weight: 700;
+      font-size: 0.95rem;
+      width: fit-content;
+      margin-top: 0.5rem;
+    }
+
+    /* Features */
+    .features {
+      width: 100%;
+      max-width: 900px;
+      padding: 0 1.5rem 4rem;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 1rem;
+    }
+    .feature-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 1.25rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+    .feature-icon { font-size: 1.5rem; }
+    .feature-title { font-weight: 600; font-size: 0.9rem; }
+    .feature-desc { color: var(--muted); font-size: 0.8rem; line-height: 1.5; }
+
+    footer {
+      width: 100%;
+      border-top: 1px solid var(--border);
+      padding: 1.5rem;
+      text-align: center;
+      color: var(--muted);
+      font-size: 0.8rem;
+      display: flex;
+      gap: 1.5rem;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+    footer a { color: var(--muted); text-decoration: none; }
+    footer a:hover { color: var(--accent); }
   </style>
 </head>
 <body>
-  <header>
-    <h1>GenLayer Games</h1>
-    <p>Onchain mini-games powered by Intelligent Contracts</p>
-  </header>
-  <div class="games-grid">
-    <a href="/countryclash" class="game-card">
-      <span class="emoji">🌍</span>
-      <h2>Country Clash</h2>
-      <p>Two countries. One metric fetched live from the web. Which ranks higher?</p>
-      <span class="badge">Live Web Data</span>
-    </a>
-    <a href="/storyforge" class="game-card">
-      <span class="emoji">✍️</span>
-      <h2>StoryForge</h2>
-      <p>A real news story is fetched live. You write what happened next. AI judges your ending.</p>
-      <span class="badge">AI Judged</span>
-    </a>
-    <div class="game-card" style="opacity:0.4;cursor:not-allowed;">
-      <span class="emoji">🔮</span>
-      <h2>Coming Soon</h2>
-      <p>More games are on the way. Stay tuned.</p>
+
+  <div class="hero">
+    <div class="gl-badge">BUILT ON GENLAYER TESTNET</div>
+    <h1>GenLayer<br>Games</h1>
+    <p>Onchain mini-games powered by Intelligent Contracts. Live web data. AI consensus. Real stakes.</p>
+  </div>
+
+  <div class="stats-bar">
+    <div class="stat-item">
+      <div class="val">3</div>
+      <div class="label">Contracts</div>
+    </div>
+    <div class="stat-item">
+      <div class="val">5</div>
+      <div class="label">Metrics</div>
+    </div>
+    <div class="stat-item">
+      <div class="val">∞</div>
+      <div class="label">Country Pairs</div>
+    </div>
+    <div class="stat-item">
+      <div class="val">Live</div>
+      <div class="label">Web Data</div>
     </div>
   </div>
-  <footer>Built on GenLayer · Intelligent Contracts · Powered by AI consensus</footer>
+
+  <div class="section">
+    <div class="section-label">🎮 Now Playing</div>
+    <a href="/countryclash" class="game-card">
+      <div class="card-top">
+        <span class="game-emoji">🌍</span>
+        <span class="live-badge">● LIVE</span>
+      </div>
+      <h2>Country Clash</h2>
+      <p>Two countries. One metric fetched live from the web. Pick the country that ranks higher — fast. Speed bonus rewards quick thinkers.</p>
+      <div class="card-tags">
+        <span class="tag">GDP</span>
+        <span class="tag">Population</span>
+        <span class="tag">Area</span>
+        <span class="tag">Life Expectancy</span>
+        <span class="tag">Inflation Rate</span>
+      </div>
+      <div class="play-btn">Play Now →</div>
+    </a>
+  </div>
+
+  <div class="features">
+    <div class="feature-card">
+      <div class="feature-icon">🌐</div>
+      <div class="feature-title">Live Web Data</div>
+      <div class="feature-desc">Contracts fetch real-time country data directly from the web on every round.</div>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon">🤖</div>
+      <div class="feature-title">AI Consensus</div>
+      <div class="feature-desc">GenLayer validators independently run LLM evaluation and reach consensus.</div>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon">⚡</div>
+      <div class="feature-title">Speed Bonus</div>
+      <div class="feature-desc">Faster correct answers earn more points. Think fast, score high.</div>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon">🏆</div>
+      <div class="feature-title">Onchain Leaderboard</div>
+      <div class="feature-desc">All scores stored onchain. Global leaderboard updated after every round.</div>
+    </div>
+  </div>
+
+  <footer>
+    <a href="https://portal.genlayer.foundation" target="_blank">GenLayer Portal</a>
+    <a href="https://studio.genlayer.com" target="_blank">Studio</a>
+    <a href="https://docs.genlayer.com" target="_blank">Docs</a>
+    <a href="https://github.com/Siriron/genlayer-minigame" target="_blank">GitHub</a>
+  </footer>
+
 </body>
 </html>
