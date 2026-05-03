@@ -47,4 +47,3 @@ const CONFIG = {
 1. Push repo to GitHub
 2. Import to Vercel — Framework: Other
 3. Deploy — game live at your Vercel URL
-4. 
